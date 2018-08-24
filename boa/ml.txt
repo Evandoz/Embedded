@@ -1,0 +1,20 @@
+$(CC) $(LDFLAGS) -I ./sqlite/ -L ./sqlite/ -o $@ $(OBJS)  $(EXTRA_LIBS)
+arm-linux-gcc -static -I ./sqlite/ -L ./sqlite/ -o add.cgi add.c @add.o @SQLite.o @consoleshell.o -lsqlite3
+
+armv4l-unknown-linux-gcc    -c -o add.o add.c
+
+armv4l-unknown-linux-gcc -static -I ./sqlite/ -L ./sqlite/ -o add.cgi add.o SQLite.o -lsqlite3
+
+
+
+mount -o nolock,rsize=4096 192.168.1.111:/arm2410cl /mnt/nfs
+
+cd /mnt/nfs/boa
+
+create table dishlist(ID integer, name varchar(20), type varchar(20), price integer);
+
+create table myorder(ID integer, DeskNo integer, Num integer);
+
+insert into myorder values(2,4,1);
+
+insert into dishlist values(1,'kele','drink',8);

@@ -1,0 +1,108 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "sqlite3.h"
+
+
+int main(void)
+{
+
+    char *data= getenv("QUERY_STRING");
+    char *sql;
+    int rc;
+	
+    sqlite3_stmt *statement=NULL;
+	 sqlite3 *pdb = NULL ;
+    int ret ;
+    
+    int price=0;//价格
+   	int ID=0;
+    char cprice[50];
+	char cID[50];
+    char cname[50];
+	 char ctype[50];
+	
+    memset(cname,0,50);
+	 memset(ctype,0,50);
+    printf("Content-Type:text/html;charset=utf-8\n\n");
+
+
+    if(data == NULL){
+        printf("<P>错误！数据没有被输入或者数据传输有问题");
+    }
+    printf(data);
+   sscanf(data,"n=%[^&]&id=%d&t=%[^&]&p=%d",cname,&ID,ctype,&price);
+            //printf("<p>");
+            //printf(data);
+       
+        
+    sql= "insert into menu(ID,Name,Type,Price)values(";
+	sprintf(cID,"%d",ID);
+    sql=join(sql,cID);
+
+	sql=join(sql,",'");
+    sql=join(sql,cname);
+
+    sql=join(sql,"','");
+    sql=join(sql,ctype);
+    sql=join(sql,"',");
+
+    sprintf(cprice,"%d",price);
+    sql=join(sql,cprice);
+    sql=join(sql,")");
+    
+    
+    
+    
+   rc = sqlite3_open("menu.db" , &pdb);
+        if(rc){
+            printf("<tr><td><label>数据库服务失败</label></td></tr>");
+                //fprintf(stderr , "can't open database: %s\n",sqlite3_errmsg(pdb));
+            sqlite3_close(pdb) ;
+                
+        }else{
+            ret=sqlite3_prepare(pdb,sql,-1,&statement,NULL);
+            if(ret != SQLITE_OK){
+                printf("<tr><td><label>prepare error ret </label></td></tr>");
+            }else{
+                
+                if (sqlite3_step(statement) == SQLITE_DONE) {
+                       
+                        printf("<H3>添加成功</H3> ");
+                }else{
+                    printf("<H3>添加失败</H3> ");
+                }
+                
+                        
+                sqlite3_finalize(statement);
+            
+            }
+                
+                
+            sqlite3_close(pdb) ;
+        }
+   
+    
+    
+    
+    fflush(stdout);
+    return 0;
+}
+
+
+char *join(char *a, char *b) {  
+    char *c = (char *) malloc(strlen(a) + strlen(b) + 1); //局部变量，用malloc申请内存  
+	 char *tempc = c; //把首地址存下来  
+    if (c == NULL) exit (1);  
+    
+    while (*a != '\0') {  
+        *c++ = *a++;  
+    }  
+    while ((*c++ = *b++) != '\0') {  
+        ;  
+    }  
+    //注意，此时指针c已经指向拼接之后的字符串的结尾'\0' !  
+    return tempc;//返回值是局部malloc申请的指针变量，需在函数调用结束后free之  
+}  
+
+
